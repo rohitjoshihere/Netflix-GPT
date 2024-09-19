@@ -1,11 +1,26 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import logo from './../assets/logo.png'
 import { Link, useNavigate } from 'react-router-dom'
 import { signOut } from 'firebase/auth'
 import { auth } from '../utils/firebase'
+import { api_option } from '../utils/constants'
+import { useDispatch } from 'react-redux'
+import { addNowPlayingMovies } from '../utils/movieSlice'
 
 export const Entry = () => {
-  const navigate =  useNavigate()
+  const dispatch = useDispatch();
+
+  const getNowPlayingMovies = async () => {
+    const data = await fetch('https://api.themoviedb.org/3/movie/now_playing?page=1', api_option)
+    const json = await data.json();
+    console.log(json.results)
+    dispatch(addNowPlayingMovies(json.results))
+  }
+
+  useEffect(() => {
+    getNowPlayingMovies();
+  }, [])
+  const navigate = useNavigate()
   const handleSignOut = () => {
     signOut(auth).then(() => {
       navigate('/login')
